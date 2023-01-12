@@ -24,7 +24,12 @@ ENV PATH=${PATH}:${KAFKA_HOME}/bin
 
 COPY download-kafka.sh start-kafka.sh broker-list.sh create-topics.sh versions.sh /tmp/
 
-RUN apk add --no-cache bash curl jq docker \
+ADD ./sb-proxy-cert.cer /usr/local/share/ca-certificates/sbproxy.crt
+
+RUN cat /usr/local/share/ca-certificates/sbproxy.crt >> /etc/ssl/certs/ca-certificates.crt \
+ && apk add --no-cache ca-certificates \
+ && chmod 644 /usr/local/share/ca-certificates/sbproxy.crt && update-ca-certificates \
+ && apk add --no-cache ca-certificates bash curl jq docker \
  && chmod a+x /tmp/*.sh \
  && mv /tmp/start-kafka.sh /tmp/broker-list.sh /tmp/create-topics.sh /tmp/versions.sh /usr/bin \
  && sync && /tmp/download-kafka.sh \
